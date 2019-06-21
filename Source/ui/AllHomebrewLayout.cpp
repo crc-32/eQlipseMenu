@@ -5,7 +5,7 @@
 #include <iomanip>
 
 extern home::HomeConfig global_home_menu;
-extern home::Layout global_layout;
+extern home::Theme global_theme;
 extern ui::HomeApplication *app_instance;
 extern pu::music::Music bgm;
 
@@ -115,7 +115,7 @@ namespace ui
 
     AllHomebrewLayout::AllHomebrewLayout()
     {
-        if(!global_layout.Generic.Background.empty()) SetBackgroundImage(global_home_menu.AbsolutePath(global_layout.Generic.Background));
+        if(!global_theme.Generic.Background.empty()) SetBackgroundImage(global_home_menu.AbsolutePath(global_theme.Generic.Background));
         hbs = QueryAllHomebrew();
 
         entries_Menu = new EntryListMenu();
@@ -124,7 +124,7 @@ namespace ui
         for(u32 i = 0; i < hbs.size(); i++) entries_Menu->AddEntryIcon(home::ItemsMetaDir + "/" + hbs[i].MetaIconName + ".jpg");
         Add(entries_Menu);
 
-        footer_Image = new pu::element::Image(0, 585, global_home_menu.AbsolutePath(global_layout.UI.FooterHbImage));
+        footer_Image = new pu::element::Image(0, 585, global_home_menu.AbsolutePath(global_theme.UI.FooterHbImage));
         Add(footer_Image);
 
         entry_Name = new pu::element::TextBlock(40, 610, "", 30);
@@ -140,7 +140,7 @@ namespace ui
         Add(entry_Author);
         Add(entry_Version);
 
-        button_Hb = new SideImageButton(Side::Left, 150, global_home_menu.AbsolutePath(global_layout.UI.HbIcon), 50, { 51, 153, 255, 255 }, 125, 100, 50, 25);
+        button_Hb = new SideImageButton(Side::Left, 150, global_home_menu.AbsolutePath(global_theme.UI.HbIcon), 50, { 51, 153, 255, 255 }, 125, 100, 50, 25);
         button_Hb->SetOnClick(std::bind(&AllHomebrewLayout::button_Hb_OnClick, this));
         button_Hb->SetPressKey(KEY_L);
         Add(button_Hb);

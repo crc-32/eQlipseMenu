@@ -11,7 +11,7 @@ extern "C"
 }
 
 home::HomeConfig global_home_menu;
-home::Layout global_layout;
+home::Theme global_theme;
 
 ApplicationHolder global_hold_application;
 AppletHolder global_hold_applet;
@@ -135,7 +135,7 @@ int main()
     home::EnsureHomeConfig();
     global_home_menu = home::ProcessHomeConfig();
 
-    global_layout = home::LoadLayout(global_home_menu.CurrentLayout);
+    global_theme = home::LoadTheme(global_home_menu.CurrentTheme);
 
     auto app = new ui::HomeApplication();
     app->Show();

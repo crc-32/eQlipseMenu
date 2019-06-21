@@ -20,13 +20,13 @@ namespace home
     {
         if(Path.substr(0, 7) == "romfs:/") return Path;
         if(ExistsFile(Path)) return Path;
-        return LayoutsDir + "/" + CurrentLayout + "/" + Path;
+        return ThemesDir + "/" + CurrentTheme + "/" + Path;
     }
 
-    std::vector<std::string> GetLayouts()
+    std::vector<std::string> GetThemes()
     {
         std::vector<std::string> lyts;
-        DIR *dp = opendir(LayoutsDir.c_str());
+        DIR *dp = opendir(ThemesDir.c_str());
         if(dp)
         {
             dirent *dt;
@@ -34,7 +34,7 @@ namespace home
             {
                 dt = readdir(dp);
                 if(dt == NULL) break;
-                std::ifstream ifs(LayoutsDir + "/" + std::string(dt->d_name) + "/layout.json");
+                std::ifstream ifs(ThemesDir + "/" + std::string(dt->d_name) + "/theme.json");
                 bool ok = ifs.good();
                 ifs.close();
                 if(ok) lyts.push_back(std::string(dt->d_name));
@@ -48,9 +48,9 @@ namespace home
     {
         auto titles = GetAllTitles();
         JSON json = JSON::object();
-        auto lyts = GetLayouts();
-        if(lyts.empty()) DieExecution("Unable to find any layouts to load.");
-        json["layout"] = lyts[0];
+        auto lyts = GetThemes();
+        if(lyts.empty()) DieExecution("Unable to find any Themes to load.");
+        json["Theme"] = lyts[0];
         for(u32 i = 0; i < titles.size(); i++)
         {
             std::stringstream strm;
@@ -168,7 +168,7 @@ namespace home
         {
             auto titles = GetAllTitles();
             auto json = JSON::parse(ifs);
-            m.CurrentLayout = json["layout"].get<std::string>();
+            m.CurrentTheme = json["Theme"].get<std::string>();
             for(u32 i = 0; i < json["entries"].size(); i++)
             {
                 auto type = json["entries"][i]["type"].get<std::string>();
@@ -203,7 +203,7 @@ namespace home
     void SaveConfig(HomeConfig Config)
     {
         auto json = JSON::object();
-        json["layout"] = Config.CurrentLayout;
+        json["Theme"] = Config.CurrentTheme;
         for(u32 i = 0; i < Config.Entries.size(); i++)
         {
             if(Config.Entries[i].Type == MenuEntryType::Folder)
@@ -417,11 +417,11 @@ namespace home
         return rmvd;
     }
 
-    Layout LoadLayout(std::string Name)
+    Theme LoadTheme(std::string Name)
     {
-        Layout lyt = {};
+        Theme lyt = {};
         lyt.Dir = Name;
-        std::ifstream ifs(LayoutsDir + "/" + Name + "/layout.json");
+        std::ifstream ifs(ThemesDir + "/" + Name + "/theme.json");
         if(ifs.good())
         {
             auto json = JSON::parse(ifs);

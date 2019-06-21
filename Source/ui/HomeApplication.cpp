@@ -8,7 +8,7 @@ home::HomeMutex ui_threading_lock;
 
 ui::HomeApplication *app_instance;
 extern home::HomeConfig global_home_menu;
-extern home::Layout global_layout;
+extern home::Theme global_theme;
 pu::overlay::Toast *notif;
 pu::music::Music bgm = NULL;
 
@@ -29,9 +29,9 @@ namespace ui
         launch = new TitleLaunchLayout();
         FadeOut();
         LoadLayout(main);
-        if(!global_layout.Generic.BGM.empty())
+        if(!global_theme.Generic.BGM.empty())
         {
-            bgm = pu::music::Open(global_home_menu.AbsolutePath(global_layout.Generic.BGM));
+            bgm = pu::music::Open(global_home_menu.AbsolutePath(global_theme.Generic.BGM));
             pu::music::PlayWithFadeIn(bgm, -1, 1000);
         }
         FadeIn();

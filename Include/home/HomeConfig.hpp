@@ -21,13 +21,13 @@ namespace home
         Folder
     };
 
-    struct LayoutMeta
+    struct ThemeMeta
     {
         std::string Name;
         std::string Author;
     };
 
-    struct LayoutGeneric
+    struct ThemeGeneric
     {
         std::string Background;
         std::string BGM;
@@ -45,11 +45,11 @@ namespace home
         std::string FolderIcon;
     };
 
-    struct Layout
+    struct Theme
     {
         std::string Dir;
-        LayoutMeta Meta;
-        LayoutGeneric Generic;
+        ThemeMeta Meta;
+        ThemeGeneric Generic;
         UIConfig UI;
     };
 
@@ -79,12 +79,12 @@ namespace home
 
     struct HomeConfig
     {
-        std::string CurrentLayout;
+        std::string CurrentTheme;
         std::vector<MenuEntry> Entries;
         std::string AbsolutePath(std::string LytRelative);
     };
 
-    std::vector<std::string> GetLayouts();
+    std::vector<std::string> GetThemes();
 
     void CreateHomeConfig();
     bool ExistsHomeConfig();
@@ -97,5 +97,5 @@ namespace home
     bool CheckContentAdded(HomeConfig &Config);
     bool CheckContentRemoved(HomeConfig &Config);
 
-    Layout LoadLayout(std::string Name);
+    Theme LoadTheme(std::string Name);
 }

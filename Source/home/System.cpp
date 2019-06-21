@@ -30,7 +30,7 @@ namespace home
         if(nsInitialize() != 0) DieExecution("Failed to initialize service: 'ns:am'.");
         if(ncmInitialize() != 0) DieExecution("Failed to initialize service: 'ncm'.");
         mkdir(BaseDir.c_str(), 777);
-        mkdir(LayoutsDir.c_str(), 777);
+        mkdir(ThemesDir.c_str(), 777);
         mkdir(ItemsMetaDir.c_str(), 777);
     }
 

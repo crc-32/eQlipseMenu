@@ -6,7 +6,7 @@
 extern ApplicationHolder global_hold_application;
 extern AppletHolder global_hold_applet;
 extern home::HomeConfig global_home_menu;
-extern home::Layout global_layout;
+extern home::Theme global_theme;
 extern ui::HomeApplication *app_instance;
 extern pu::music::Music bgm;
 
@@ -19,12 +19,12 @@ namespace ui
 
     MainLayout::MainLayout()
     {
-        if(!global_layout.Generic.Background.empty()) SetBackgroundImage(global_home_menu.AbsolutePath(global_layout.Generic.Background));
+        if(!global_theme.Generic.Background.empty()) SetBackgroundImage(global_home_menu.AbsolutePath(global_theme.Generic.Background));
 
-        header_Image = new pu::element::Image(0, 0, global_home_menu.AbsolutePath(global_layout.UI.HeaderImage));
+        header_Image = new pu::element::Image(0, 0, global_home_menu.AbsolutePath(global_theme.UI.HeaderImage));
         Add(header_Image);
 
-        footer_Image = new pu::element::Image(0, 585, global_home_menu.AbsolutePath(global_layout.UI.FooterTitleImage));
+        footer_Image = new pu::element::Image(0, 585, global_home_menu.AbsolutePath(global_theme.UI.FooterTitleImage));
         Add(footer_Image);
 
         entries_Menu = new EntryListMenu();
@@ -32,7 +32,7 @@ namespace ui
         entries_Menu->SetOnEntrySelect(std::bind(&MainLayout::entries_Menu_OnClick, this, std::placeholders::_1));
         for(u32 i = 0; i < global_home_menu.Entries.size(); i++)
         {
-            if(global_home_menu.Entries[i].Type == home::MenuEntryType::Folder) entries_Menu->AddEntryIcon(global_home_menu.AbsolutePath(global_layout.UI.FolderIcon));
+            if(global_home_menu.Entries[i].Type == home::MenuEntryType::Folder) entries_Menu->AddEntryIcon(global_home_menu.AbsolutePath(global_theme.UI.FolderIcon));
             else entries_Menu->AddEntryIcon(home::ItemsMetaDir + "/" + global_home_menu.Entries[i].EntryItem.MetaIconName + ".jpg");
         }
         Add(entries_Menu);
@@ -47,17 +47,17 @@ namespace ui
         Add(entry_Author);
         Add(entry_Version);
 
-        button_Hb = new SideImageButton(Side::Left, 150, global_home_menu.AbsolutePath(global_layout.UI.HbIcon), 50, { 51, 153, 255, 255 }, 125, 100, 50, 25);
+        button_Hb = new SideImageButton(Side::Left, 150, global_home_menu.AbsolutePath(global_theme.UI.HbIcon), 50, { 51, 153, 255, 255 }, 125, 100, 50, 25);
         button_Hb->SetOnClick(std::bind(&MainLayout::button_Hb_OnClick, this));
         button_Hb->SetPressKey(KEY_L);
         Add(button_Hb);
 
-        button_MenuEdit = new SideImageButton(Side::Right, 215, global_home_menu.AbsolutePath(global_layout.UI.MenuEditIcon), 40, { 255, 215, 0, 255 }, 80, 70, 15, 25);
+        button_MenuEdit = new SideImageButton(Side::Right, 215, global_home_menu.AbsolutePath(global_theme.UI.MenuEditIcon), 40, { 255, 215, 0, 255 }, 80, 70, 15, 25);
         button_MenuEdit->SetOnClick(std::bind(&MainLayout::button_MenuEdit_OnClick, this));
         button_MenuEdit->SetPressKey(KEY_R);
         Add(button_MenuEdit);
 
-        button_Settings = new SideImageButton(Side::Right, 100, global_home_menu.AbsolutePath(global_layout.UI.SettingsIcon), 60, { 115, 115, 115, 255 }, 110, 80, 30, 25);
+        button_Settings = new SideImageButton(Side::Right, 100, global_home_menu.AbsolutePath(global_theme.UI.SettingsIcon), 60, { 115, 115, 115, 255 }, 110, 80, 30, 25);
         button_Settings->SetOnClick(std::bind(&MainLayout::button_Settings_OnClick, this));
         button_Settings->SetPressKey(KEY_ZR);
         Add(button_Settings);
@@ -104,7 +104,7 @@ namespace ui
             entries_Menu->ClearEntries();
             for(u32 i = 0; i < global_home_menu.Entries.size(); i++)
             {
-                if(global_home_menu.Entries[i].Type == home::MenuEntryType::Folder) entries_Menu->AddEntryIcon(global_home_menu.AbsolutePath(global_layout.UI.FolderIcon));
+                if(global_home_menu.Entries[i].Type == home::MenuEntryType::Folder) entries_Menu->AddEntryIcon(global_home_menu.AbsolutePath(global_theme.UI.FolderIcon));
                 else entries_Menu->AddEntryIcon(home::ItemsMetaDir + "/" + global_home_menu.Entries[i].EntryItem.MetaIconName + ".jpg");
             }
             entries_Menu->SetFocusedItemIndex(root_lastidx);
@@ -135,7 +135,7 @@ namespace ui
             entry_Author->SetText(std::to_string(global_home_menu.Entries[Index].FolderItem.Items.size()) + " entries");
             button_Launch->SetText("Open");
             if(global_home_menu.Entries[Index].FolderItem.Items.empty()) button_Launch->SetVisible(false);
-            footer_Image->SetImage(global_home_menu.AbsolutePath(global_layout.UI.FooterFolderImage));
+            footer_Image->SetImage(global_home_menu.AbsolutePath(global_theme.UI.FooterFolderImage));
         }
         else
         {
@@ -143,12 +143,12 @@ namespace ui
             if(folderidx != -1)
             {
                 itm = global_home_menu.Entries[folderidx].FolderItem.Items[Index]; 
-                footer_Image->SetImage(global_home_menu.AbsolutePath(global_layout.UI.FooterFolderImage));
+                footer_Image->SetImage(global_home_menu.AbsolutePath(global_theme.UI.FooterFolderImage));
             }
             else
             {
-                if(itm.Type == home::ItemType::Homebrew) footer_Image->SetImage(global_home_menu.AbsolutePath(global_layout.UI.FooterHbImage));
-                else footer_Image->SetImage(global_home_menu.AbsolutePath(global_layout.UI.FooterTitleImage));
+                if(itm.Type == home::ItemType::Homebrew) footer_Image->SetImage(global_home_menu.AbsolutePath(global_theme.UI.FooterHbImage));
+                else footer_Image->SetImage(global_home_menu.AbsolutePath(global_theme.UI.FooterTitleImage));
             }
             entry_Version->SetVisible(true);
             button_Launch->SetText("Launch");
