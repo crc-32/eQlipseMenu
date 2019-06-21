@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include <dirent.h>
+#include <stratosphere.hpp>
 
 extern AppletHolder global_hold_applet;
 
@@ -39,6 +40,114 @@ namespace home
         nsExit();
         ncmExit();
         romfsExit();
+    }
+
+    static void CreateFile(std::string p)
+    {
+        FILE *f = fopen(p.c_str(), "w");
+        fclose(f);
+    }
+
+    static void CreateDir(std::string p)
+    {
+        mkdir(p.c_str(), 777);
+    }
+
+    static void MoveFile(std::string p1, std::string p2)
+    {
+        rename(p1.c_str(), p2.c_str());
+    }
+
+    static void DeleteFile(std::string p)
+    {
+        remove(p.c_str());
+    }
+
+    static void DeleteDirOnce(std::string p)
+    {
+        rmdir(p.c_str());
+    }
+
+    static void CopyFile(std::string p, std::string np)
+    {
+        FILE *inf = fopen(p.c_str(), "rb");
+        FILE *outf = fopen(np.c_str(), "wb");
+        fseek(inf, 0, SEEK_END);
+        u64 fsize = ftell(inf);
+        rewind(inf);
+        u64 readsize = 0x4000;
+        u64 tocopy = fsize;
+        u8 *tmp = (u8*)malloc(readsize);
+        memset(tmp, 0, readsize);
+        while(tocopy)
+        {
+            auto read = fread(tmp, 1, std::min(readsize, tocopy), inf);
+            fwrite(tmp, 1, read, outf);
+            tocopy -= read;
+        }
+        free(tmp);
+        fclose(outf);
+        fclose(inf);
+    }
+
+    static void DeleteDir(std::string d)
+    {
+        DIR *dp = opendir(d.c_str());
+        if(dp)
+        {
+            dirent *dt;
+            while(true)
+            {
+                dt = readdir(dp);
+                if(dt == NULL) break;
+                std::string fullp = d + "/" + std::string(dt->d_name);
+                if(dt->d_type & DT_DIR) DeleteDirOnce(fullp);
+                else if(dt->d_type & DT_REG) DeleteFile(fullp);
+            }
+            closedir(dp);
+        }
+        DeleteDirOnce(d);
+    }
+
+    static void DirPerform(std::string d, std::string nd, bool copy)
+    {
+        DIR *dp = opendir(d.c_str());
+        CreateDir(nd);
+        if(dp)
+        {
+            dirent *dt;
+            while(true)
+            {
+                dt = readdir(dp);
+                if(dt == NULL) break;
+                std::string fullp = d + "/" + std::string(dt->d_name);
+                std::string nfullp = nd + "/" + std::string(dt->d_name);
+                if(dt->d_type & DT_DIR) DirPerform(fullp, nfullp, copy);
+                else if(dt->d_type & DT_REG)
+                {
+                    if(copy) CopyFile(fullp, nfullp);
+                    else MoveFile(fullp, nfullp);
+                }
+            }
+            closedir(dp);
+        }
+        if(!copy) DeleteDirOnce(d);
+    }
+
+    static void MoveDir(std::string d, std::string nd)
+    {
+        DirPerform(d, nd, false);
+    }
+
+    static void CopyDir(std::string d, std::string nd)
+    {
+        DirPerform(d, nd, true);
+    }
+
+    static bool Exists(std::string p)
+    {
+        struct stat st;
+        return (stat(p.c_str(), &st) == 0);
     }
 
     bool RunningAtmosphere()
@@ -78,6 +187,7 @@ namespace home
 
     void TargetHbmenu(std::string Path)
     {
+        HandleLayeredFs(BinDir + "/LibraryAppletHbTarget", TitleId_AppletShop);
         LibAppletArgs args;
         libappletArgsCreate(&args, HbTargetMagic);
         appletCreateLibraryApplet(&global_hold_applet, AppletId_shop, LibAppletMode_AllForeground);
@@ -88,6 +198,32 @@ namespace home
         libappletPushInData(&global_hold_applet, &hargs, sizeof(HbTargetArgs));
         libappletStart(&global_hold_applet);
         appletHolderClose(&global_hold_applet);
+        UnhandleLayeredFs(TitleId_AppletShop);
+    }
+
+    void HandleLayeredFs(std::string Path, u64 AppId)
+    {
+        std::stringstream strm;
+        strm << std::hex << std::setw(16) << std::setfill('0') << std::uppercase << AppId;
+        auto lfspath = GetBaseCfwDir() + "/titles/" + strm.str();
+        if(Exists(lfspath))
+        {
+            CreateDir(LFsTempDir);
+            std::string tmp = LFsTempDir + "/" + strm.str();
+            MoveDir(lfspath, tmp);
+        }
+        CopyDir(Path, lfspath);
+    }
+
+    void UnhandleLayeredFs(u64 AppId)
+    {
+        std::stringstream strm;
+        strm << std::hex << std::setw(16) << std::setfill('0') << std::uppercase << AppId;
+        auto lfspath = GetBaseCfwDir() + "/titles/" + strm.str();
+        if(Exists(lfspath)) DeleteDir(lfspath);
+        CreateDir(LFsTempDir);
+        std::string tmp = LFsTempDir + "/" + strm.str();
+        if(Exists(tmp)) MoveDir(tmp, lfspath);
     }
 
     std::vector<Title> GetTitlesForStorage(FsStorageId Id)

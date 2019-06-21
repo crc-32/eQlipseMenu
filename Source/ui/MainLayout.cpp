@@ -158,6 +158,56 @@ namespace ui
         }
     }
 
+    void MainLayout::HandleOpenTitle(u64 Id, bool User, u32 Index)
+    {
+        Result rc = 0;
+        if(Id == 0x01008BB00013C000)
+        {
+            home::HandleLayeredFs(home::BinDir + "/SystemApplicationHbTarget", Id);
+            rc = appletApplicationHolderCreateForSystem(&global_hold_application, Id);
+        }
+        else rc = appletApplicationHolderCreate(&global_hold_application, Id);
+        if(rc == 0)
+        {
+            home::HbTargetArgs args = {};
+            args.Magic = home::HbTargetMagic;
+            strcpy(args.Entry, "sdmc:/switch/Goldleaf.nro");
+            AppletStorage st;
+            appletCreateStorage(&st, sizeof(home::HbTargetArgs));
+            appletStorageWrite(&st, 0, &args, sizeof(home::HbTargetArgs));
+            appletApplicationHolderPushLaunchParameter(&global_hold_application, AppletLaunchParameterKind_Application, &st);
+            appletStorageClose(&st);
+            rc = appletApplicationHolderPrepareForLaunch(&global_hold_application, User);//itm.TitleData.NeedsUser);
+            if(rc == 0)
+            {
+                app_instance->FadeOut();
+                app_instance->LoadTitleLaunchScreen();
+                app_instance->FadeIn();
+                rc = appletApplicationHolderLaunch(&global_hold_application);
+                if(rc == 0)
+                {
+                    pu::music::FadeOut(500);
+                    opened_layeridx = folderidx;
+                    opened_itemidx = Index;
+                    entries_Menu->SetOpenedItemIndex(Index);
+                }
+            }
+        }
+        if((rc != 0) && (rc != 0x4680))
+        {
+            app_instance->ResetLoaded();
+            app_instance->CreateShowDialog("Title launching", "An error ocurred attempting to launch the title.", { "Ok" }, true);
+        }
+    }
+
+    void MainLayout::HandleCloseTitle()
+    {
+        home::UnhandleLayeredFs(0x01008BB00013C000);
+        appletApplicationHolderTerminate(&global_hold_application);
+        appletApplicationHolderClose(&global_hold_application);
+        NotifyTitleTerminated();
+    }
+
     void MainLayout::entries_Menu_OnClick(u32 Index)
     {
         if((global_home_menu.Entries[Index].Type == home::MenuEntryType::Folder) && (folderidx == -1))
@@ -195,44 +245,11 @@ namespace ui
                     int sopt = app_instance->CreateShowDialog("Title already opened", "Would you like to close the currently open title?", {"Yes", "No"}, true);
                     if(sopt == 0)
                     {
-                        appletApplicationHolderTerminate(&global_hold_application);
-                        appletApplicationHolderClose(&global_hold_application);
-                        NotifyTitleTerminated();
+                        HandleCloseTitle();
                     }
                     else return;
                 }
-                auto rc = appletApplicationHolderCreateForSystem(&global_hold_application, 0x01008BB00013C000);//itm.TitleData.Id);
-                if(rc == 0)
-                {
-                    home::HbTargetArgs args = {};
-                    args.Magic = home::HbTargetMagic;
-                    strcpy(args.Entry, "sdmc:/switch/Goldleaf.nro");
-                    AppletStorage st;
-                    appletCreateStorage(&st, sizeof(home::HbTargetArgs));
-                    appletStorageWrite(&st, 0, &args, sizeof(home::HbTargetArgs));
-                    appletApplicationHolderPushLaunchParameter(&global_hold_application, AppletLaunchParameterKind_Application, &st);
-                    appletStorageClose(&st);
-                    rc = appletApplicationHolderPrepareForLaunch(&global_hold_application, false);//itm.TitleData.NeedsUser);
-                    if(rc == 0)
-                    {
-                        app_instance->FadeOut();
-                        app_instance->LoadTitleLaunchScreen();
-                        app_instance->FadeIn();
-                        rc = appletApplicationHolderLaunch(&global_hold_application);
-                        if(rc == 0)
-                        {
-                            pu::music::FadeOut(500);
-                            opened_layeridx = folderidx;
-                            opened_itemidx = Index;
-                            entries_Menu->SetOpenedItemIndex(Index);
-                        }
-                    }
-                }
-                if((rc != 0) && (rc != 0x4680))
-                {
-                    app_instance->ResetLoaded();
-                    app_instance->CreateShowDialog("Title launching", "An error ocurred attempting to launch the title.", { "Ok" }, true);
-                }
+                HandleOpenTitle(itm.TitleData.Id, itm.TitleData.NeedsUser, Index);
             }
         }
     }
@@ -398,9 +415,7 @@ namespace ui
                     }
                     else if(sopt == 1)
                     {
-                        appletApplicationHolderTerminate(&global_hold_application);
-                        appletApplicationHolderClose(&global_hold_application);
-                        NotifyTitleTerminated();
+                        HandleCloseTitle();
                     }
                     else if(sopt == 2)
                     {
@@ -440,26 +455,7 @@ namespace ui
                     int sopt = app_instance->CreateShowDialog(itm.Name, "What would you like to do with this title?", { "Launch", "Move into folder", "Cancel" }, true);
                     if(sopt == 0)
                     {
-                        auto rc = appletApplicationHolderCreateForSystem(&global_hold_application, 0x01008BB00013C000);//itm.TitleData.Id);
-                        if(rc == 0)
-                        {
-                            rc = appletApplicationHolderPrepareForLaunch(&global_hold_application, false);//itm.TitleData.NeedsUser);
-                            if(rc == 0)
-                            {
-                                app_instance->FadeOut();
-                                app_instance->LoadTitleLaunchScreen();
-                                app_instance->FadeIn();
-                                rc = appletApplicationHolderLaunch(&global_hold_application);
-                                if(rc == 0)
-                                {
-                                    pu::music::FadeOut(500);
-                                    opened_layeridx = folderidx;
-                                    opened_itemidx = idx;
-                                    entries_Menu->SetOpenedItemIndex(idx);
-                                }
-                            }
-                        }
-                        if(rc != 0) app_instance->CreateShowDialog(std::to_string(rc), "Launch", { "Launch" }, true);
+                        HandleOpenTitle(0x01008BB00013C000, true, idx);
                     }
                     else if(sopt == 1)
                     {

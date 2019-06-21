@@ -13,6 +13,8 @@ namespace ui
             MainLayout();
             void OnInput(u64 Down, u64 Up, u64 Held, bool Touch);
             
+            void HandleOpenTitle(u64 Id, bool User, u32 Index);
+            void HandleCloseTitle();
             void NotifyTitleTerminated();
             void ReloadItems();
 

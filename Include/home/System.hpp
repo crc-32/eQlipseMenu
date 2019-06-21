@@ -36,6 +36,8 @@ namespace home
     bool RunningSXOS();
     std::string GetBaseCfwDir();
     void TargetHbmenu(std::string Path);
+    void HandleLayeredFs(std::string Path, u64 AppId);
+    void UnhandleLayeredFs(u64 AppId);
     
     std::vector<Title> GetTitlesForStorage(FsStorageId Id);
     std::vector<Title> GetAllTitles();
