@@ -117,6 +117,7 @@ $(BUILD):
 	@$(MAKE) -C Plutonium/Plutonium/
 	@$(MAKE) -C libstratosphere/
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	@build_romfs $(CURDIR)/RomFs $(OUTPUT).romfs
 
 #---------------------------------------------------------------------------------
 clean:
