@@ -1,0 +1,9 @@
+[submodule "libstratosphere"]
+	path = libstratosphere
+	url = https://github.com/Atmosphere-NX/libstratosphere
+[submodule "Plutonium"]
+	path = Plutonium
+	url = https://github.com/XorTroll/Plutonium
+[submodule "libnx"]
+	path = libnx
+	url = https://github.com/eqlipse-nx/libnx
