@@ -226,7 +226,7 @@ namespace ui
             {
                 pu::music::FadeOut(500);
                 app_instance->FadeOut();
-                home::TargetHbmenu(itm.Path.c_str());
+                home::TargetHbmenu(itm.Path.c_str(), "");
                 pu::music::PlayWithFadeIn(bgm, -1, 1500);
                 app_instance->FadeIn();
             }

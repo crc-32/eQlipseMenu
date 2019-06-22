@@ -43,6 +43,7 @@ namespace home
         std::string MenuEditIcon;
         std::string SettingsIcon;
         std::string FolderIcon;
+        std::string UpdateIndicator;
     };
 
     struct Theme
@@ -62,6 +63,7 @@ namespace home
         Title TitleData;
         std::string Path;
         std::string MetaIconName;
+        std::string HbUpdateVersion;
     };
 
     struct MenuFolder

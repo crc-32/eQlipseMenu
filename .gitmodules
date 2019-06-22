@@ -7,3 +7,6 @@
 [submodule "libnx"]
 	path = libnx
 	url = https://github.com/eqlipse-nx/libnx
+[submodule "libget"]
+	path = libget
+	url = https://github.com/vgmoose/libget.git

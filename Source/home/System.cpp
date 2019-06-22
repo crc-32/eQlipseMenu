@@ -185,7 +185,7 @@ namespace home
         return "";
     }
 
-    void TargetHbmenu(std::string Path)
+    void TargetHbmenu(std::string Path, std::string Argv)
     {
         HandleLayeredFs(BinDir + "/LibraryAppletHbTarget", TitleId_AppletShop);
         LibAppletArgs args;
@@ -195,6 +195,7 @@ namespace home
         HbTargetArgs hargs = {};
         hargs.Magic = HbTargetMagic;
         strcpy(hargs.Entry, Path.c_str());
+        if(!Argv.empty()) strcpy(hargs.Argv, Argv.c_str());
         libappletPushInData(&global_hold_applet, &hargs, sizeof(HbTargetArgs));
         libappletStart(&global_hold_applet);
         appletHolderClose(&global_hold_applet);

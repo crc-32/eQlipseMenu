@@ -35,7 +35,7 @@ namespace home
     bool RunningReiNX();
     bool RunningSXOS();
     std::string GetBaseCfwDir();
-    void TargetHbmenu(std::string Path);
+    void TargetHbmenu(std::string Path, std::string Argv);
     void HandleLayeredFs(std::string Path, u64 AppId);
     void UnhandleLayeredFs(u64 AppId);
     

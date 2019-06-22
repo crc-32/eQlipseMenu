@@ -5,6 +5,9 @@
 #include <iomanip>
 #include <sstream>
 #include <home/System.hpp>
+#include <home/Updates.hpp>
+
+extern home::Updates* global_update_manager;
 
 namespace home
 {
@@ -101,6 +104,7 @@ namespace home
         else if(type == "homebrew")
         {
             auto path = item["path"].get<std::string>();
+            out.HbUpdateVersion = global_update_manager->GetUpdate(path);
             FILE *nro = fopen(path.c_str(), "rb");
             if(nro)
             {
@@ -437,6 +441,7 @@ namespace home
             lyt.UI.MenuEditIcon = "romfs:/default/MenuEdit.png";
             lyt.UI.SettingsIcon = "romfs:/default/Settings.png";
             lyt.UI.FolderIcon = "romfs:/default/Folder.png";
+            lyt.UI.UpdateIndicator = "romfs:/default/UpdateIndicator.png";
             if(json.count("ui"))
             {
                 lyt.UI.HeaderImage = json["ui"].value("headerImage", "romfs:/default/Header.png");
@@ -447,6 +452,7 @@ namespace home
                 lyt.UI.MenuEditIcon = json["ui"].value("menuEditIcon", "romfs:/default/MenuEdit.png");
                 lyt.UI.SettingsIcon = json["ui"].value("settingsIcon", "romfs:/default/Settings.png");
                 lyt.UI.FolderIcon = json["ui"].value("folderIcon", "romfs:/default/Folder.png");
+                lyt.UI.UpdateIndicator = json["ui"].value("updateIndicator", "romfs:/default/UpdateIndicator.png");
             }
         }
         ifs.close();

@@ -11,4 +11,5 @@ namespace home
     static const std::string ThemesDir = BaseDir + "/themes";
     static const std::string LFsTempDir = BaseDir + "/lfs_temp";
     static const std::string BinDir = BaseDir + "/bin";
+    static const std::string AppstoreDir = "sdmc:/switch/appstore/";
 }

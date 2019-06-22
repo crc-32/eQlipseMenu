@@ -1,11 +1,13 @@
 #include <ui/AllHomebrewLayout.hpp>
 #include <ui/HomeApplication.hpp>
+#include <home/Updates.hpp>
 #include <dirent.h>
 #include <sstream>
 #include <iomanip>
 
 extern home::HomeConfig global_home_menu;
 extern home::Theme global_theme;
+extern home::Updates *global_update_manager;
 extern ui::HomeApplication *app_instance;
 extern pu::music::Music bgm;
 
@@ -41,6 +43,7 @@ namespace ui
                     if(fname.substr(fname.find_last_of(".") + 1) == "nro")
                     {
                         home::MenuItem itm = {};
+                        itm.HbUpdateVersion = global_update_manager->GetUpdate(full);
                         FILE *nro = fopen(full.c_str(), "rb");
                         if(nro)
                         {
@@ -121,7 +124,11 @@ namespace ui
         entries_Menu = new EntryListMenu();
         entries_Menu->SetOnEntryFocus(std::bind(&AllHomebrewLayout::entries_Menu_OnFocus, this, std::placeholders::_1));
         entries_Menu->SetOnEntrySelect(std::bind(&AllHomebrewLayout::entries_Menu_OnClick, this, std::placeholders::_1));
-        for(u32 i = 0; i < hbs.size(); i++) entries_Menu->AddEntryIcon(home::ItemsMetaDir + "/" + hbs[i].MetaIconName + ".jpg");
+        for(u32 i = 0; i < hbs.size(); i++)
+        {
+            entries_Menu->AddEntryIcon(home::ItemsMetaDir + "/" + hbs[i].MetaIconName + ".jpg");
+            if (!hbs[i].HbUpdateVersion.empty()) entries_Menu->PushIndicatorIndex(i);
+        }
         Add(entries_Menu);
 
         footer_Image = new pu::element::Image(0, 585, global_home_menu.AbsolutePath(global_theme.UI.FooterHbImage));
@@ -163,12 +170,19 @@ namespace ui
 
     void AllHomebrewLayout::entries_Menu_OnClick(u32 Index)
     {
+        std::string updateString = global_update_manager->GetUpdate(hbs[Index].Path);
+        std::vector<std::string> options = { "Launch", "Add to main menu" };
+        if (!updateString.empty())
+        {
+            options.push_back("Update (" + updateString + ")");
+        }
+        options.push_back("Cancel");
         int sopt = app_instance->CreateShowDialog("Homebrew menu", "What would you like to do with the selected homebrew application?", { "Launch", "Add to main menu", "Cancel" }, true);
         if(sopt == 0)
         {
             pu::music::FadeOut(500);
             app_instance->FadeOut();
-            home::TargetHbmenu(hbs[Index].Path);
+            home::TargetHbmenu(home::AppstoreDir + "appstore.nro", "packageinstall=" + global_update_manager->ToPackageString(hbs[Index].Path));
             pu::music::PlayWithFadeIn(bgm, -1, 1500);
             app_instance->FadeIn();
         }
@@ -185,13 +199,21 @@ namespace ui
             global_home_menu.Entries.push_back(entry);
             home::SaveConfig(global_home_menu);
         }
+        else if(sopt == 2)
+        {
+            pu::music::FadeOut(500);
+            app_instance->FadeOut();
+            home::TargetHbmenu(hbs[Index].Path, "");
+            pu::music::PlayWithFadeIn(bgm, -1, 1500);
+            app_instance->FadeIn();
+        }
     }
 
     void AllHomebrewLayout::button_Hb_OnClick()
     {
         pu::music::FadeOut(500);
         app_instance->FadeOut();
-        home::TargetHbmenu("sdmc:/hbmenu.nro");
+        home::TargetHbmenu("sdmc:/hbmenu.nro", "");
         pu::music::PlayWithFadeIn(bgm, -1, 1500);
         app_instance->FadeIn();
     }

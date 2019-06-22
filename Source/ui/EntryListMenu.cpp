@@ -1,4 +1,10 @@
 #include <ui/EntryListMenu.hpp>
+#include <home/Updates.hpp>
+#include <home/HomeConfig.hpp>
+
+extern home::Updates* global_update_manager;
+extern home::Theme global_theme;
+extern home::HomeConfig global_home_menu;
 
 namespace ui
 {
@@ -8,6 +14,7 @@ namespace ui
         selcb = [](u32){};
         mainidx = 0;
         openedidx = -1;
+        UpdateIndicatorTexture = pu::render::LoadImage(global_home_menu.AbsolutePath(global_theme.UI.UpdateIndicator));
     }
 
     s32 EntryListMenu::GetX()
@@ -117,6 +124,10 @@ namespace ui
                 {
                     Drawer->RenderRectangleFill({ 50, 210, 80, 175 }, basex, basey - 64 + mainsize + 10, mainsize, 10);
                 }
+                if(std::find(indicatorsidx.begin(), indicatorsidx.end(), i) != indicatorsidx.end())
+                {
+                    Drawer->RenderTexture(UpdateIndicatorTexture, (basex+mainsize)-16, (basey-64)-16);
+                }
                 basex += mainsize + mainmargin;
             }
             else
@@ -125,6 +136,10 @@ namespace ui
                 if((int)i == openedidx)
                 {
                     Drawer->RenderRectangleFill({ 50, 210, 80, 175 }, basex, basey + normalsize + 10, normalsize, 10);
+                }
+                if(std::find(indicatorsidx.begin(), indicatorsidx.end(), i) != indicatorsidx.end())
+                {
+                    Drawer->RenderTexture(UpdateIndicatorTexture, (basex+normalsize)-16, basey-16);
                 }
                 basex += normalsize + normalmargin;
                 if((i + 1) == mainidx)
@@ -155,5 +170,10 @@ namespace ui
     u32 EntryListMenu::GetFocusedItemIndex()
     {
         return mainidx;
+    }
+
+    void EntryListMenu::PushIndicatorIndex(u32 Index)
+    {
+        indicatorsidx.push_back(Index);
     }
 }

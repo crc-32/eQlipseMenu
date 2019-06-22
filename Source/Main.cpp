@@ -1,8 +1,11 @@
 #include <home/System.hpp>
 #include <home/Messages.hpp>
 #include <home/Mutex.hpp>
+#include <home/Consts.hpp>
+#include <home/Updates.hpp>
 #include <ipc/ServiceHost.hpp>
 #include <ui/HomeApplication.hpp>
+#include <libget/src/Get.hpp>
 
 extern "C"
 {
@@ -15,6 +18,8 @@ home::Theme global_theme;
 
 ApplicationHolder global_hold_application;
 AppletHolder global_hold_applet;
+
+home::Updates *global_update_manager;
 
 Thread t_GeneralChannel;
 Thread t_Messages;
@@ -132,6 +137,8 @@ int main()
     auto rc = InitializeThreads();
     if(rc != 0) home::DieExecution("Failed to initialize inner threads.");
 
+    global_update_manager = new home::Updates(home::AppstoreDir  + ".get/");
+
     home::EnsureHomeConfig();
     global_home_menu = home::ProcessHomeConfig();
 
@@ -140,6 +147,7 @@ int main()
     auto app = new ui::HomeApplication();
     app->Show();
     delete app;
+    delete global_update_manager;
 
     home::Exit();
 

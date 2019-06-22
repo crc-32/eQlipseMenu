@@ -23,12 +23,15 @@ namespace ui
             int GetOpenedItemIndex();
             void SetFocusedItemIndex(u32 Index);
             u32 GetFocusedItemIndex();
+            void PushIndicatorIndex(u32 Index);
         private:
             int openedidx;
+            std::vector<u32> indicatorsidx;
             std::vector<std::string> entries;
             std::vector<pu::render::NativeTexture> entryicons;
             u32 mainidx;
             std::function<void(u32)> focuscb;
             std::function<void(u32)> selcb;
+            pu::render::NativeTexture UpdateIndicatorTexture;
     };
 }
